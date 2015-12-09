@@ -15,8 +15,7 @@ use Noodlehaus\Exception\EmptyDirectoryException;
  * @link       https://github.com/noodlehaus/config
  * @license    MIT
  */
-class Config extends AbstractConfig
-{
+class Config extends AbstractConfig {
     /**
      * All file formats supported by Config
      *
@@ -37,36 +36,28 @@ class Config extends AbstractConfig
      *
      * @return Config
      */
-    public static function load($path)
-    {
-        return new static($path);
-    }
+    public static function load($path) {
+        $self = new self([]);
 
-    /**
-     * Loads a supported configuration file format.
-     *
-     * @param  string|array $path
-     *
-     * @throws EmptyDirectoryException    If `$path` is an empty directory
-     */
-    public function __construct($path)
-    {
-        $paths      = $this->getValidPath($path);
-        $this->data = array();
+        $paths = $self->getValidPath($path);
 
+        $data = [];
         foreach ($paths as $path) {
 
             // Get file information
-            $info      = pathinfo($path);
+            $info = pathinfo($path);
             $extension = isset($info['extension']) ? $info['extension'] : '';
-            $parser    = $this->getParser($extension);
+            $parser = $self->getParser($extension);
 
             // Try and load file
-            $this->data = array_replace_recursive($this->data, $parser->parse($path));
+            $data = array_replace_recursive($data, $parser->parse($path));
         }
 
-        parent::__construct($this->data);
+        $self->setData($data);
+
+        return $self;
     }
+
 
     /**
      * Gets a parser for a given file extension
@@ -77,8 +68,7 @@ class Config extends AbstractConfig
      *
      * @throws UnsupportedFormatException If `$path` is an unsupported file format
      */
-    private function getParser($extension)
-    {
+    private function getParser($extension) {
         $parser = null;
 
         foreach ($this->supportedFileParsers as $fileParser) {
@@ -110,8 +100,7 @@ class Config extends AbstractConfig
      *
      * @throws FileNotFoundException   If a file is not found at `$path`
      */
-    private function getValidPath($path)
-    {
+    private function getValidPath($path) {
         // If `$path` is array
         if (is_array($path)) {
             $paths = array();
@@ -149,7 +138,7 @@ class Config extends AbstractConfig
         }
 
         // If `$path` is not a file, throw an exception
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             throw new FileNotFoundException("Configuration file: [$path] cannot be found");
         }
         return array($path);

@@ -13,8 +13,9 @@ use ArrayAccess;
  * @link       https://github.com/noodlehaus/config
  * @license    MIT
  */
-abstract class AbstractConfig implements ArrayAccess, ConfigInterface
-{
+abstract class AbstractConfig implements ArrayAccess, ConfigInterface {
+
+
     /**
      * Stores the configuration data
      *
@@ -34,9 +35,25 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface
      *
      * @param array $data
      */
-    public function __construct(Array $data)
-    {
+    public function __construct(Array $data) {
+        $this->setData($data);
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getData() {
+        return $this->data;
+    }
+
+    /**
+     * @param array|null $data
+     * @return $this
+     */
+    public function setData($data) {
         $this->data = array_merge($this->getDefaults(), $data);
+
+        return $this;
     }
 
     /**
@@ -47,8 +64,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface
      *
      * @codeCoverageIgnore
      */
-    protected function getDefaults()
-    {
+    protected function getDefaults() {
         return array();
     }
 
@@ -59,8 +75,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface
     /**
      * {@inheritDoc}
      */
-    public function get($key, $default = null)
-    {
+    public function get($key, $default = null) {
         // Check if already cached
         if (isset($this->cache[$key])) {
             return $this->cache[$key];
@@ -87,14 +102,13 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface
     /**
      * {@inheritDoc}
      */
-    public function set($key, $value)
-    {
+    public function set($key, $value) {
         $segs = explode('.', $key);
         $root = &$this->data;
 
         // Look for the key, creating nested keys if needed
         while ($part = array_shift($segs)) {
-            if (!isset($root[$part]) && count($segs)) {
+            if (! isset($root[$part]) && count($segs)) {
                 $root[$part] = array();
             }
             $root = &$root[$part];
@@ -115,8 +129,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface
      *
      * @return mixed
      */
-    public function offsetGet($offset)
-    {
+    public function offsetGet($offset) {
         return $this->get($offset);
     }
 
@@ -127,21 +140,19 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface
      *
      * @return bool
      */
-    public function offsetExists($offset)
-    {
-        return !is_null($this->get($offset));
+    public function offsetExists($offset) {
+        return ! is_null($this->get($offset));
     }
 
     /**
      * Sets a value using the offset as a key
      *
      * @param  string $offset
-     * @param  mixed  $value
+     * @param  mixed $value
      *
      * @return void
      */
-    public function offsetSet($offset, $value)
-    {
+    public function offsetSet($offset, $value) {
         $this->set($offset, $value);
     }
 
@@ -152,8 +163,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface
      *
      * @return void
      */
-    public function offsetUnset($offset)
-    {
+    public function offsetUnset($offset) {
         $this->set($offset, null);
     }
 }
