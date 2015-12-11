@@ -81,6 +81,7 @@ class Config extends AbstractConfig {
 
         }
 
+
         // If none exist, then throw an exception
         if ($parser === null) {
             throw new UnsupportedFormatException('Unsupported configuration format');
